@@ -11,3 +11,7 @@ Folding instructions can be found online: http://pocketmod.com/design/inst.jpg
 
 The scorecard will work with a variety of scorekeeping methods, but works best using the Reisner Scorekeeping system. Instructions on how to use the Reisner system can be found online: http://alexreisner.com/baseball/docs/ReisnerScorekeepingDocumentation.pdf
 
+For printing, ensure that the printer does not scale the file and prints at 100%. The card is oriented so that lines outside the printable area of whatever printer you are using are less important. For best results, take care when folding.
+
+To compile to pdf:
+	ps2pdf pocket_scorecard.ps
