@@ -1,0 +1,365 @@
+%!PS
+0.5 setlinewidth
+/ppi 72 def
+/inch {ppi mul} def
+/width 8.5 inch def
+/height 11 inch def
+/player height 4 div 5 div def
+gsave % Save the current coordinate system
+
+% Bounding Box - an 8.5" x 11" portrait orientation
+newpath
+	0 0 moveto
+	width 0 lineto
+	width height lineto
+	0 height lineto
+	0 0 closepath
+stroke
+
+% Fold Lines
+newpath
+	% Minimalist folding lines (does not repeat any other lines)
+	0           height 4 div 3 mul moveto
+	width 2 div height 4 div 3 mul lineto
+
+	0           height 2 div moveto
+	width       height 2 div lineto
+
+	width 2 div height 4 div 1 mul moveto
+	width height 4 div 1 mul lineto
+
+	% A single vertical line
+	width 2 div 0 moveto
+	width 2 div height lineto 
+stroke
+
+newpath
+	/i 1 def
+	{
+		% Draw horizontal player lines
+		% Home (top right)
+		width 2 div height 2 div player i mul add moveto
+		width       height 2 div player i mul add lineto
+
+		% Away (bottom left)
+		0     		height 2 div player i mul sub moveto
+		width 2 div height 2 div player i mul sub lineto
+
+		% Home Subs
+		width       height 2 div i 0.5 sub player mul add moveto
+		width 2 div player 6 mul add  	height 2 div i 0.5 sub player mul add lineto     
+
+		% Away Subs
+		0             height 2 div i 0.5 sub player mul sub moveto
+		width 2 div player 6 mul sub  height 2 div i 0.5 sub player mul sub lineto     
+
+		% Draw vertical innings lines
+		i 7 lt {
+			% Home
+			width 2 div player i mul add height 2 div moveto
+			width 2 div player i mul add height 2 div 9 player mul add lineto
+
+			% Away
+			width 2 div player i mul sub height 2 div moveto
+			width 2 div player i mul sub height 2 div 9 player mul sub lineto
+		} if
+
+		/i i 1 add def
+		i 9 gt {exit} if
+	} loop
+
+	% Auxillary Boxes
+	width 2 div player add height 2 div moveto
+	0 player neg .25 sub rlineto
+	width 2 div height 2 div player sub moveto
+	player 0 rlineto
+
+	width 2 div player add height 4 div moveto
+	0 player neg .25 sub rlineto
+	width 2 div height 4 div player sub moveto
+	player 0 rlineto
+stroke
+
+% Setup to draw diamonds
+/frac 3 def
+/d player frac 2 sqrt mul div def
+[1 2] 0 setdash
+0.1 setlinewidth
+/diamond {
+	d 0 rmoveto
+	d neg d rlineto
+	d neg d neg rlineto
+	d d neg rlineto
+	closepath
+} bind def
+
+% Draw the home and visitors diamonds
+newpath
+	/j 1 def
+	{
+		/i 1 def
+		{
+			/x width 2 div i 0.5 sub player mul sub def
+			/y height 2 div j 0.5 sub player mul sub player 0.05 mul add def
+			x y moveto
+			diamond
+			/x width 2 div i 0.5 sub player mul add def
+			/y height 2 div j 0.5 sub player mul add player 0.05 mul sub def
+			x y moveto
+			diamond
+			/i i 1 add def
+			i 6 gt {exit} if
+		} loop
+		/j j 1 add def
+		j 9 gt {exit} if
+	} loop
+
+	% Draw auxillary diamonds
+	width 2 div player 2 div add height 2 div player 2 div sub moveto diamond	
+	width 2 div player 2 div add height 4 div player 2 div sub moveto diamond	
+stroke
+
+% Print the numbers on each box
+
+/Arial-Narrow findfont
+4 scalefont
+setfont
+
+newpath
+	/nstr 2 string def % creates a string of length 2, filled with nulls
+	/cvrt {nstr cvs} def % function to convert number to string
+	/x_buf .5 def
+	/y_buf 3.5 def
+	/j 0 def
+	{
+		/i 0 def
+		j 1 eq { % Rotate and translate to get the home team boxes the 2nd time through
+			width height translate
+			180 rotate
+		} if
+		{
+			/s i 1 add cvrt def
+			width 2 div   6 player mul sub   i 9 idiv player mul add  x_buf add
+			height 2 div i 9 mod player mul sub y_buf sub moveto s show
+			/i i 1 add def
+			i 53 gt {exit} if
+		} loop
+		j 1 eq {exit} if
+		/j 1 def
+	} loop
+stroke
+
+% Reset the coordinate system to 0,0 at bottom left of page
+width height translate
+180 rotate
+
+/Arial-Narrow findfont
+8 scalefont
+setfont
+
+% Set the dash back to solid and 0.5 pt.
+[] 0 setdash 
+0.5 setlinewidth
+
+% Back page
+newpath
+	/divider_x width 6 div def
+	/line_ht player 2 div def
+	divider_x height moveto
+	0 height 4 div sub rlineto % Draw the vertical dividing line
+
+	divider_x (Umpires) stringwidth pop sub 2 div height line_ht sub .05 player mul add moveto
+	(Umpires) show
+	0 height line_ht sub moveto
+	divider_x 0 rlineto
+	divider_x neg line_ht neg rmoveto
+	divider_x 0 rlineto
+	divider_x neg line_ht neg rmoveto
+	divider_x 0 rlineto
+	divider_x neg line_ht neg rmoveto
+	divider_x 0 rlineto
+	divider_x neg line_ht neg rmoveto
+	divider_x 0 rlineto
+	divider_x neg line_ht 2 div neg rmoveto
+	divider_x (Notes) stringwidth pop sub 2 div 0 rmoveto
+	(Notes) show
+stroke
+
+% Front Page
+newpath
+	/l width 2 div def
+	/s ( vs. ) def
+	/vs_w s stringwidth pop def
+	l vs_w sub 6 player mul sub 2 div height .75 mul 1 player mul sub moveto
+	3 player mul 0 rlineto
+	s show
+	3 player mul 0 rlineto
+	l 3 player mul sub 2 div height .75 mul 1.5 player mul sub moveto
+	3 player mul 0 rlineto
+	l 3 player mul sub 2 div (@) stringwidth pop sub height .75 mul 1.5 player mul sub moveto
+	(@) show
+	l 3 player mul sub 2 div height .75 mul 2 player mul sub moveto
+	3 player mul 0 rlineto
+	l 3 player mul sub 2 div (on) stringwidth pop sub height .75 mul 2 player mul sub moveto
+	(on) show
+	l 2.5 player mul (S:F:) stringwidth pop add sub 2 div height .75 mul 2.5 player mul sub moveto
+	(S:) show
+	1 player mul 0 rlineto
+	player 2 div 0 rmoveto
+	(F:) show
+	1 player mul 0 rlineto
+
+	% Linescore
+	/Arial-Narrow findfont
+	6 scalefont
+	setfont
+
+	/w player 4 div def % define a col width
+	l 20 w mul sub 2 div   height 2 div player 2 mul add moveto
+	
+	% Create box
+	20 w mul 0 rlineto
+	0 player neg rlineto
+	20 w mul neg 0 rlineto closepath
+
+	w 5 mul 0 rmoveto
+	/i 1 def
+	{
+		0 player neg rlineto
+		w player rmoveto
+		/i i 1 add def
+		i 15 gt {exit} if
+	} loop
+
+	0 player 2 div neg rmoveto
+	20 w mul neg 0 rlineto
+
+	5 w mul player 2 div 2 add rmoveto
+	currentpoint translate % Move the origin
+	/i 1 def
+	{	
+		i 13 lt {
+		w i cvrt stringwidth pop sub 2 div 0 rmoveto
+		i cvrt show} if
+		i 13 eq {
+		w (R) stringwidth pop sub 2 div 0 rmoveto
+		(R) show} if
+		i 14 eq {
+		w (H) stringwidth pop sub 2 div 0 rmoveto
+		(H) show} if
+		i 15 eq {
+		w (E) stringwidth pop sub 2 div 0 rmoveto
+		(E) show} if
+		i w mul 0 moveto
+		/i i 1 add def
+		i 15 gt {exit} if
+	} loop
+stroke
+
+grestore
+
+% Commands are given such as if the pitchers boxes are in the bottom right of the page, rightside up.
+% This rotation flips it to have the correct orientation, still keeping in the bottom right.
+width 1.5 mul height 2 div translate
+180 rotate
+
+/Arial-Narrow findfont
+6 scalefont
+setfont
+
+newpath
+	% First Pitchers Box
+	/top_y height 2 div 1.5 player mul sub def
+	width 2 div 2 player mul w add (HOME PITCHERS) stringwidth pop sub 2 div add top_y .05 player mul add moveto
+	(HOME PITCHERS) show
+	/left_x width 2 div 2 player mul add w add def
+	left_x 1.5 w mul (L/R) stringwidth pop sub 2 div add  top_y .05 player mul add moveto
+	(L/R) show
+	left_x 1.5 w mul (In) stringwidth pop sub 2 div add 1.5 w mul add top_y .05 player mul add moveto
+	(In) show
+	left_x 1.5 w mul (Out) stringwidth pop sub 2 div add 3.0 w mul add top_y .05 player mul add moveto
+	(Out) show
+	left_x 1.5 w mul (IP) stringwidth pop sub 2 div add 4.5 w mul add top_y .05 player mul add moveto
+	(IP) show
+	left_x 1.5 w mul (H) stringwidth pop sub 2 div add 6.0 w mul add top_y .05 player mul add moveto
+	(H) show
+	left_x 1.5 w mul (R) stringwidth pop sub 2 div add 7.5 w mul add top_y .05 player mul add moveto
+	(R) show
+	left_x 1.5 w mul (ER) stringwidth pop sub 2 div add 9.0 w mul add top_y .05 player mul add moveto
+	(ER) show
+	left_x 1.5 w mul (BB) stringwidth pop sub 2 div add 10.5 w mul add top_y .05 player mul add moveto
+	(BB) show
+	left_x 1.5 w mul (K) stringwidth pop sub 2 div add 12.0 w mul add top_y .05 player mul add moveto
+	(K) show
+	left_x 1.5 w mul (HR) stringwidth pop sub 2 div add 13.5 w mul add top_y .05 player mul add moveto
+	(HR) show
+
+	width 2 div height 2 div 1.5 player mul sub moveto
+	/i 1 def
+	{
+		6 player mul 0 rlineto
+		6 player mul neg player 2 div neg rmoveto
+		/i i 1 add def
+		i 7 gt {exit} if
+	} loop
+	width 2 div 6 player mul add height 2 div 1.5 player mul sub .25 add moveto % add 1/2 linewidth to closepath
+	0 3.5 player mul neg rlineto
+	width 2 div height 2 div 1.5 player mul sub .25 add moveto % add 1/2 linewidth to closepath
+	0 3.5 player mul neg rlineto
+	width 2 div 2 player mul add w add height 2 div 1.5 player mul sub moveto
+	/i 1 def
+	{
+		0 3.5 player mul neg rlineto
+		w 1.5 mul 3.5 player mul rmoveto
+		/i i 1 add def
+		i 11 gt {exit} if
+	} loop
+
+	% Second Pitchers Box
+	/top_y height 4 div 1.5 player mul sub def
+	width 2 div 2 player mul w add (AWAY PITCHERS) stringwidth pop sub 2 div add top_y .05 player mul add moveto
+	(AWAY PITCHERS) show
+	/left_x width 2 div 2 player mul add w add def
+	left_x 1.5 w mul (L/R) stringwidth pop sub 2 div add  top_y .05 player mul add moveto
+	(L/R) show
+	left_x 1.5 w mul (In) stringwidth pop sub 2 div add 1.5 w mul add top_y .05 player mul add moveto
+	(In) show
+	left_x 1.5 w mul (Out) stringwidth pop sub 2 div add 3.0 w mul add top_y .05 player mul add moveto
+	(Out) show
+	left_x 1.5 w mul (IP) stringwidth pop sub 2 div add 4.5 w mul add top_y .05 player mul add moveto
+	(IP) show
+	left_x 1.5 w mul (H) stringwidth pop sub 2 div add 6.0 w mul add top_y .05 player mul add moveto
+	(H) show
+	left_x 1.5 w mul (R) stringwidth pop sub 2 div add 7.5 w mul add top_y .05 player mul add moveto
+	(R) show
+	left_x 1.5 w mul (ER) stringwidth pop sub 2 div add 9.0 w mul add top_y .05 player mul add moveto
+	(ER) show
+	left_x 1.5 w mul (BB) stringwidth pop sub 2 div add 10.5 w mul add top_y .05 player mul add moveto
+	(BB) show
+	left_x 1.5 w mul (K) stringwidth pop sub 2 div add 12.0 w mul add top_y .05 player mul add moveto
+	(K) show
+	left_x 1.5 w mul (HR) stringwidth pop sub 2 div add 13.5 w mul add top_y .05 player mul add moveto
+	(HR) show
+	width 2 div height 4 div 1.5 player mul sub moveto
+	/i 1 def
+	{
+		6 player mul 0 rlineto
+		6 player mul neg player 2 div neg rmoveto
+		/i i 1 add def
+		i 7 gt {exit} if
+	} loop
+	width 2 div 6 player mul add height 4 div 1.5 player mul sub .25 add moveto % add 1/2 linewidth to closepath
+	0 3.5 player mul neg rlineto
+	width 2 div height 4 div 1.5 player mul sub .25 add moveto % add 1/2 linewidth to closepath
+	0 3.5 player mul neg rlineto
+	width 2 div 2 player mul add w add height 4 div 1.5 player mul sub moveto
+	/i 1 def
+	{
+		0 3.5 player mul neg rlineto
+		w 1.5 mul 3.5 player mul rmoveto
+		/i i 1 add def
+		i 11 gt {exit} if
+	} loop
+stroke
+
+showpage
