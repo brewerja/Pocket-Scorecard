@@ -167,6 +167,8 @@ newpath
 	/line_ht player 2 div def
 	divider_x height moveto
 	0 height 4 div sub rlineto % Draw the vertical dividing line
+	divider_x 0 rmoveto
+	% INSERT DIVIDER HERE
 
 	divider_x (Umpires) stringwidth pop sub 2 div height line_ht sub .05 player mul add moveto
 	(Umpires) show
@@ -315,6 +317,9 @@ newpath
 		i 11 gt {exit} if
 	} loop
 
+	left_x player 2 div 7.5 mul add 3 add top_y 6 add moveto
+	% INSERT ROSTER HERE: away pitchers
+
 	% Second Pitchers Box
 	/top_y height 4 div 1.5 player mul sub def
 	width 2 div 2 player mul w add (AWAY PITCHERS) stringwidth pop sub 2 div add top_y .05 player mul add moveto
@@ -361,5 +366,18 @@ newpath
 		i 11 gt {exit} if
 	} loop
 stroke
+
+left_x player 2 div 7.5 mul add 3 add top_y 6 add moveto
+% INSERT ROSTER HERE: home pitchers
+
+180 rotate
+width 1.5 mul neg height 2 div neg translate
+newpath
+
+width 6 div 6 add height player 2 div sub moveto
+% INSERT ROSTER HERE: away posplayers
+
+width 6 div 2 mul 6 add height player 2 div sub moveto
+% INSERT ROSTER HERE: home posplayers
 
 showpage
