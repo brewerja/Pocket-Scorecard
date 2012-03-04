@@ -44,14 +44,22 @@ def print_roster(team, roster_type, name=''):
         out.write('(%s %s) show\n '%(p[0], p[1]))
         out.write('r_x r_y %s 6 mul sub moveto\n'%(str(i+2)))
 
-with open('output.ps', 'w') as out:
-    with open('pocket_scorecard.ps', 'r') as lines:
-        for line in lines:
-            if 'INSERT ROSTER HERE' in line:
-                team = line.strip().split()[-2]
-                roster_type = line.strip().split()[-1]
-                print_roster(team, roster_type)
-            elif 'INSERT DIVIDER HERE' in line:
-                out.write('0 height rlineto\n')
-            else:
-                out.write(line)
+if __name__ == '__main__':
+
+    from mlbrosters import get
+    pitchers = {}
+    posplayers = {}
+    pitchers['away'], posplayers['away'] = get('hou')
+    pitchers['home'], posplayers['home'] = get('was')
+
+    with open('output.ps', 'w') as out:
+        with open('pocket_scorecard.ps', 'r') as lines:
+            for line in lines:
+                if 'INSERT ROSTER HERE' in line:
+                    team = line.strip().split()[-2]
+                    roster_type = line.strip().split()[-1]
+                    print_roster(team, roster_type)
+                elif 'INSERT DIVIDER HERE' in line:
+                    out.write('0 height rlineto\n')
+                else:
+                    out.write(line)
