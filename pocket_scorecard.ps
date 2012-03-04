@@ -217,12 +217,12 @@ newpath
 	setfont
 
 	/w player 4 div def % define a col width
-	l 20 w mul sub 2 div   height 2 div player 2 mul add moveto
+	l 21.5 w mul sub 2 div   height 2 div player 1.75 mul add moveto
 	
-	% Create box
-	20 w mul 0 rlineto
+	% Create box 5 + 12 + 1.5*3
+	21.5 w mul 0 rlineto
 	0 player neg rlineto
-	20 w mul neg 0 rlineto closepath
+	21.5 w mul neg 0 rlineto closepath
 
 	w 5 mul 0 rmoveto
 	/i 1 def
@@ -230,11 +230,17 @@ newpath
 		0 player neg rlineto
 		w player rmoveto
 		/i i 1 add def
-		i 15 gt {exit} if
+		i 13 gt {exit} if
 	} loop
 
+	w .5 mul 0 rmoveto
+	0 player neg rlineto
+	1.5 w mul player rmoveto
+	0 player neg rlineto
+	1.5 w mul player rmoveto
+
 	0 player 2 div neg rmoveto
-	20 w mul neg 0 rlineto
+	21.5 w mul neg 0 rlineto
 
 	5 w mul player 2 div 2 add rmoveto
 	currentpoint translate % Move the origin
@@ -243,19 +249,19 @@ newpath
 		i 13 lt {
 		w i cvrt stringwidth pop sub 2 div 0 rmoveto
 		i cvrt show} if
-		i 13 eq {
-		w (R) stringwidth pop sub 2 div 0 rmoveto
-		(R) show} if
-		i 14 eq {
-		w (H) stringwidth pop sub 2 div 0 rmoveto
-		(H) show} if
-		i 15 eq {
-		w (E) stringwidth pop sub 2 div 0 rmoveto
-		(E) show} if
 		i w mul 0 moveto
 		/i i 1 add def
 		i 15 gt {exit} if
 	} loop
+	
+	w 12 mul w 1.5 mul (R) stringwidth pop sub 2 div add 0 moveto
+	(R) show
+
+	w 13.5 mul w 1.5 mul (R) stringwidth pop sub 2 div add 0 moveto
+	(H) show
+
+	w 15 mul w 1.5 mul (R) stringwidth pop sub 2 div add 0 moveto
+	(E) show
 stroke
 
 grestore
