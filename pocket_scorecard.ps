@@ -149,9 +149,23 @@ newpath
 	} loop
 stroke
 
+/Arial-Narrow-Italic findfont
+4 scalefont
+setfont
+
+/home_team (HOME) def
+% LABEL BOXES HERE: home team
+width 2 div home_team stringwidth pop sub 1 sub height 2 div 9 player mul sub 3.5 sub moveto
+home_team show
+
 % Reset the coordinate system to 0,0 at bottom left of page
 width height translate
 180 rotate
+
+/away_team (AWAY) def
+% LABEL BOXES HERE: away team
+width 2 div away_team stringwidth pop sub 1 sub height 2 div 9 player mul sub 3.5 sub moveto
+away_team show
 
 /Arial-Narrow findfont
 8 scalefont
@@ -371,6 +385,18 @@ newpath
 		/i i 1 add def
 		i 11 gt {exit} if
 	} loop
+
+	% Insert a '1' for the In column for the starting pitcher.
+	/Arial-Narrow findfont
+	20 scalefont
+	setfont
+	width 2 div 2 player mul add w add 4.5 w mul(1) stringwidth pop sub 2 div add
+	height 2 div 2 player mul sub 3 add moveto
+	(1) show
+	width 2 div 2 player mul add w add 4.5 w mul(1) stringwidth pop sub 2 div add
+	height 4 div 2 player mul sub 3 add moveto
+	(1) show
+
 stroke
 
 left_x player 2 div 7.5 mul add 3 add top_y 6 add moveto

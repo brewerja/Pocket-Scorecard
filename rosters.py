@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 ROSTER_FILES = ['away', 'home']
 pitchers, posplayers = {}, {}
 
@@ -51,6 +53,7 @@ if __name__ == '__main__':
     posplayers = {}
     pitchers['away'], posplayers['away'] = get('hou')
     pitchers['home'], posplayers['home'] = get('was')
+    teams = {'home':'Washington Nationals', 'away':'Houston Astros'}
 
     with open('output.ps', 'w') as out:
         with open('pocket_scorecard.ps', 'r') as lines:
@@ -61,5 +64,8 @@ if __name__ == '__main__':
                     print_roster(team, roster_type)
                 elif 'INSERT DIVIDER HERE' in line:
                     out.write('0 height rlineto\n')
+                elif 'LABEL BOXES HERE' in line:
+                    team = line.strip().split()[-2]
+                    out.write('/%s_team (%s) def\n'%(team, teams[team]))
                 else:
                     out.write(line)
