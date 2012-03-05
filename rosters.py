@@ -51,9 +51,10 @@ if __name__ == '__main__':
     from mlbrosters import get
     pitchers = {}
     posplayers = {}
-    pitchers['away'], posplayers['away'] = get('hou')
+    pitchers['away'], posplayers['away'] = get('phi')
     pitchers['home'], posplayers['home'] = get('was')
-    teams = {'home':'Washington Nationals', 'away':'Houston Astros'}
+    teams_full = {'away':'Philadelphia Phillies', 'home':'Washington Nationals'}
+    teams_nick = {'away': 'PHILLIES', 'home':'NATIONALS'} # UPPERCASE
 
     with open('output.ps', 'w') as out:
         with open('pocket_scorecard.ps', 'r') as lines:
@@ -66,6 +67,8 @@ if __name__ == '__main__':
                     out.write('0 height rlineto\n')
                 elif 'LABEL BOXES HERE' in line:
                     team = line.strip().split()[-2]
-                    out.write('/%s_team (%s) def\n'%(team, teams[team]))
+                    out.write('/%s_team_full (%s) def\n'%(team, teams_full[team]))
+                    out.write('/%s_team_nick (%s) def\n'%(team, teams_nick[team]))
+                    out.write('/%s_team_opt %s_team_nick def\n'%(team, team))
                 else:
                     out.write(line)

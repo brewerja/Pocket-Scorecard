@@ -5,7 +5,25 @@
 /width 8.5 inch def
 /height 11 inch def
 /player height 4 div 5 div def
+/away_team_full () def % Boston Red Sox
+/home_team_full () def
+/away_team_nick () def % Red Sox
+/home_team_nick () def
+/away_team_opt () def
+/home_team_opt () def
+
+% Now set opts to nicknames if desired and turn on full names.
+% LABEL BOXES HERE: away team
+% LABEL BOXES HERE: home team
 gsave % Save the current coordinate system
+
+/concatstrings % (a) (b) -> (ab)  
+{
+	exch dup length    
+	2 index length add string    
+	dup dup 4 2 roll copy length
+	4 -1 roll putinterval
+} bind def
 
 % Bounding Box - an 8.5" x 11" portrait orientation
 newpath
@@ -153,19 +171,17 @@ stroke
 4 scalefont
 setfont
 
-/home_team (HOME) def
-% LABEL BOXES HERE: home team
-width 2 div home_team stringwidth pop sub 1 sub height 2 div 9 player mul sub 3.5 sub moveto
-home_team show
+% Label the batting grid.
+width 2 div home_team_nick stringwidth pop sub 1 sub height 2 div 9 player mul sub 3.5 sub moveto
+home_team_nick show
 
 % Reset the coordinate system to 0,0 at bottom left of page
 width height translate
 180 rotate
 
-/away_team (AWAY) def
-% LABEL BOXES HERE: away team
-width 2 div away_team stringwidth pop sub 1 sub height 2 div 9 player mul sub 3.5 sub moveto
-away_team show
+% Label the batting grid.
+width 2 div away_team_nick stringwidth pop sub 1 sub height 2 div 9 player mul sub 3.5 sub moveto
+away_team_nick show
 
 /Arial-Narrow findfont
 8 scalefont
@@ -225,12 +241,25 @@ newpath
 	(F:) show
 	1 player mul 0 rlineto
 
+	% Write the full names of both teams on the blank lines of the front page
+	l vs_w sub 6 player mul sub 2 div 3 player mul away_team_full stringwidth pop sub 2 div add height .75 mul 1 player mul sub 2 add moveto
+	away_team_full show
+	l vs_w sub 6 player mul sub 2 div 3 player mul home_team_full stringwidth pop sub 2 div add 3 player mul add vs_w add height .75 mul 1 player mul sub 2 add moveto
+	home_team_full show
+
 	% Linescore
 	/Arial-Narrow findfont
 	6 scalefont
 	setfont
 
 	/w player 4 div def % define a col width
+
+	% Write the nicknames of both teams in the linescore.
+	l 21.5 w mul sub 2 div 2 add   height 2 div player 1.45 mul add moveto
+	away_team_opt show
+	l 21.5 w mul sub 2 div 2 add   height 2 div player 0.95 mul add moveto
+	home_team_opt show
+
 	l 21.5 w mul sub 2 div   height 2 div player 1.75 mul add moveto
 	
 	% Create box 5 + 12 + 1.5*3
@@ -292,8 +321,9 @@ setfont
 newpath
 	% First Pitchers Box
 	/top_y height 2 div 1.5 player mul sub def
-	width 2 div 2 player mul w add (AWAY PITCHERS) stringwidth pop sub 2 div add top_y .05 player mul add moveto
-	(AWAY PITCHERS) show
+	/away_pitchers away_team_nick ( PITCHERS) concatstrings def
+	width 2 div 2 player mul w add away_pitchers stringwidth pop sub 2 div add top_y .05 player mul add moveto
+	away_pitchers show
 	/left_x width 2 div 2 player mul add w add def
 	left_x 1.5 w mul (L/R) stringwidth pop sub 2 div add  top_y .05 player mul add moveto
 	(L/R) show
@@ -342,8 +372,9 @@ newpath
 
 	% Second Pitchers Box
 	/top_y height 4 div 1.5 player mul sub def
-	width 2 div 2 player mul w add (HOME PITCHERS) stringwidth pop sub 2 div add top_y .05 player mul add moveto
-	(HOME PITCHERS) show
+	/home_pitchers home_team_nick ( PITCHERS) concatstrings def
+	width 2 div 2 player mul w add home_pitchers stringwidth pop sub 2 div add top_y .05 player mul add moveto
+	home_pitchers show
 	/left_x width 2 div 2 player mul add w add def
 	left_x 1.5 w mul (L/R) stringwidth pop sub 2 div add  top_y .05 player mul add moveto
 	(L/R) show
@@ -398,6 +429,10 @@ newpath
 	(1) show
 
 stroke
+
+/Arial-Narrow findfont
+6 scalefont
+setfont
 
 left_x player 2 div 7.5 mul add 3 add top_y 6 add moveto
 % INSERT ROSTER HERE: home pitchers
