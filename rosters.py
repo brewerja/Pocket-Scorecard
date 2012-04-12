@@ -1,35 +1,36 @@
 #!/usr/bin/python
 
-ROSTER_FILES = ['away', 'home']
-pitchers, posplayers = {}, {}
+def other():
+    ROSTER_FILES = ['away', 'home']
+    pitchers, posplayers = {}, {}
 
-for filename in ROSTER_FILES:
-    pitchers[filename] = []
-    posplayers[filename] = []
-    with open(filename, 'rb') as f:
-        for line in f:
-            lastfirst = False
-            if ',' in line:
-                line = line.replace(',', '')
-                lastfirst = True
-            x = line.split()
-            n = x[0]
-            if lastfirst:
-                name = x[2] + ' ' + x[1]
-            else:
-                name = x[1] + ' ' + x[2]
-            if len(x) == 5:
-                pos = x[3] + x[4]
-            else:
-                pos = x[3]
-            #print n, name, pos
-            if 'P' in pos:
-                pitchers[filename].append([int(n), name, pos])
-            else:
-                posplayers[filename].append([int(n), name, pos])
+    for filename in ROSTER_FILES:
+        pitchers[filename] = []
+        posplayers[filename] = []
+        with open(filename, 'rb') as f:
+            for line in f:
+                lastfirst = False
+                if ',' in line:
+                    line = line.replace(',', '')
+                    lastfirst = True
+                x = line.split()
+                n = x[0]
+                if lastfirst:
+                    name = x[2] + ' ' + x[1]
+                else:
+                    name = x[1] + ' ' + x[2]
+                if len(x) == 5:
+                    pos = x[3] + x[4]
+                else:
+                    pos = x[3]
+                #print n, name, pos
+                if 'P' in pos:
+                    pitchers[filename].append([int(n), name, pos])
+                else:
+                    posplayers[filename].append([int(n), name, pos])
 
-    pitchers[filename] = sorted(pitchers[filename],   key=lambda p: p[0])
-    posplayers[filename] = sorted(posplayers[filename], key=lambda p: p[0])
+        pitchers[filename] = sorted(pitchers[filename],   key=lambda p: p[0])
+        posplayers[filename] = sorted(posplayers[filename], key=lambda p: p[0])
 
 
 def print_roster(team, roster_type, name=''):
