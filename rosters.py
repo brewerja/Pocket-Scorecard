@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
 
 def other():
     ROSTER_FILES = ['away', 'home']
@@ -45,7 +46,7 @@ def print_roster(team, roster_type, name=''):
     else:
         return
     for i, p in enumerate(players):
-        out.write('(%s %s) show\n ' % (p[0], p[1]))
+        out.write('(%s %s %s) show\n ' % (p[0], p[1], p[2]))
         out.write('r_x r_y %s 6 mul sub moveto\n' % (str(i + 2)))
 
 if __name__ == '__main__':
