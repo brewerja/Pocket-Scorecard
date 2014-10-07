@@ -20,13 +20,13 @@ def get(team):
     bodies = table.findAll('tbody')
 
     # There should be 4 tbody sets. The first is pitchers.
-    pitchers = build_players(bodies[0], 'throws')
-    position_players = build_players(bodies[1:], 'bats')
+    pitchers = build_players(bodies[0])
+    position_players = build_players(bodies[1:])
 
     return pitchers, position_players
 
 
-def build_players(bodies, handed):
+def build_players(bodies):
     body = BeautifulSoup(str(bodies)).findAll('tr')
     rows = [map(str, row.findAll("td")) for row in body]
     players = []
@@ -36,10 +36,7 @@ def build_players(bodies, handed):
             continue
         name = BeautifulSoup(row[1]).find('a').string
         bats, throws = BeautifulSoup(row[2]).find('td').string.split('-')
-        if handed == 'bats':
-            players.append((n, name, bats))
-        else:
-            players.append((n, name, throws))
+        players.append((n, name, bats, throws))
 
     return sorted(players, key=lambda p: parse_num(p[0]))
 

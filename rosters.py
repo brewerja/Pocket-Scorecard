@@ -39,14 +39,18 @@ def print_roster(team, roster_type, name=''):
     out.write('/r_y currentpoint exch pop def\n')
     out.write('(%s) show\n' % name)
     out.write('r_x r_y %s 6 mul sub moveto\n' % (str(1)))
+
     if roster_type == 'posplayers':
         players = posplayers[team]
+        handed = 2
     elif roster_type == 'pitchers':
         players = pitchers[team]
+        handed = 3
     else:
         return
+
     for i, p in enumerate(players):
-        out.write('(%s %s %s) show\n ' % (p[0], p[1], p[2]))
+        out.write('(%s %s %s) show\n ' % (p[0], p[1], p[handed]))
         out.write('r_x r_y %s 6 mul sub moveto\n' % (str(i + 2)))
 
 if __name__ == '__main__':
