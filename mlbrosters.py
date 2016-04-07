@@ -16,8 +16,7 @@ def get(team):
     f = urllib.urlopen('%s?c_id=%s' % (BASE_URL, team))
     soup = BeautifulSoup(f.read())
 
-    table = soup.find('table', {'class': 'team_table_results'})
-    bodies = table.findAll('tbody')
+    bodies = soup.findAll('table', {'class': 'data roster_table'})
 
     # There should be 4 tbody sets. The first is pitchers.
     pitchers = build_players(bodies[0])
@@ -30,13 +29,14 @@ def build_players(bodies):
     body = BeautifulSoup(str(bodies)).findAll('tr')
     rows = [map(str, row.findAll("td")) for row in body]
     players = []
-    for row in rows:
-        n = BeautifulSoup(row[0]).find('td').string
-        if r'&#042;' in row[1]:  # Catch an asterisk.
-            continue
-        name = BeautifulSoup(row[1]).find('a').string
-        bats, throws = BeautifulSoup(row[2]).find('td').string.split('-')
-        players.append((n, name, bats, throws))
+    for row in rows[1:]:
+        if row:
+            n = BeautifulSoup(row[0]).find('td').string
+            #if r'&#042;' in row[1]:  # Catch an asterisk.
+                #continue
+            name = BeautifulSoup(row[2]).find('a').string
+            bats, throws = BeautifulSoup(row[3]).find('td').string.split('/')
+            players.append((n, name, bats, throws))
 
     return sorted(players, key=lambda p: parse_num(p[0]))
 
