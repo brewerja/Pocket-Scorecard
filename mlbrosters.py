@@ -1,5 +1,5 @@
-from BeautifulSoup import BeautifulSoup
-import urllib
+from bs4 import BeautifulSoup
+from urllib import request
 
 BASE_URL = 'http://mlb.com/team/roster_active.jsp'
 
@@ -13,41 +13,46 @@ def get(team):
     contains tuples of a player's number and his name (i.e. (u'34', u'Bryce
     Harper')."""
 
-    f = urllib.urlopen('%s?c_id=%s' % (BASE_URL, team))
-    soup = BeautifulSoup(f.read())
+    f = request.urlopen('%s?c_id=%s' % (BASE_URL, team))
+    soup = BeautifulSoup(f.read(), 'html.parser')
 
     bodies = soup.findAll('table', {'class': 'data roster_table'})
 
     # There should be 4 tbody sets. The first is pitchers.
-    pitchers = build_players(bodies[0])
+    pitchers = build_players(bodies[0], False)
     position_players = build_players(bodies[1:])
 
     return pitchers, position_players
 
 
-def build_players(bodies):
-    body = BeautifulSoup(str(bodies)).findAll('tr')
-    rows = [map(str, row.findAll("td")) for row in body]
+def build_players(bodies, posplayers=True):
+    rows = BeautifulSoup(str(bodies), 'html.parser').findAll('tr')
+
     players = []
     for row in rows[1:]:
-        if row:
-            n = BeautifulSoup(row[0]).find('td').string
-            #if r'&#042;' in row[1]:  # Catch an asterisk.
-                #continue
-            name = BeautifulSoup(row[2]).find('a').string
-            bats, throws = BeautifulSoup(row[3]).find('td').string.split('/')
-            players.append((n, name, bats, throws))
+        if row.td:
+            n = row.td.string
+            name = row.find('td', class_='dg-name_display_first_last').a.string
+            bats, throws = row.find('td',
+                                    class_='dg-bats_throws').string.split('/')
+            players.append((n, name, bats if posplayers else throws))
 
     return sorted(players, key=lambda p: parse_num(p[0]))
 
 
 def parse_num(num):
     if num:
-        return int(num)
+        try:
+            return int(num)
+        except ValueError:
+            print('VALUE ERROR', num)
+            return '28'
     return 100
 
 
 if __name__ == '__main__':
-    pitchers, position_players = get('cin')
-    print pitchers
-    print position_players
+    for code in ['chc', 'la']:
+        pitchers, position_players = get(code)
+        for p in pitchers + position_players:
+            print(p)
+        print('\n')
