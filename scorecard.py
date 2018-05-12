@@ -124,9 +124,15 @@ def get_back_panel(game):
 
 def get_roster(team_code, posplayers=True):
     pitchers, pplayers = mlbrosters.get(team_code)
+    if posplayers:
+        return roster_list(pplayers)
+    starters, bullpen = mlbrosters.separate_starters_and_bullpen(pitchers)
+    return roster_list(starters) + r'\\ \\' + roster_list(bullpen)
+
+
+def roster_list(players):
     return r'\noindent' + r'\\'.join(
-        map(lambda p: '%s %s %s' % (p[0], p[1], p[2]),
-            pplayers if posplayers else pitchers))
+        map(lambda p: '%s %s %s' % (p[0], p[1], p[2]), players))
 
 
 def get_front_panel(game):
@@ -253,5 +259,5 @@ def write_canvas(canvas, filename):
 if __name__ == '__main__':
     game = Game('Los Angeles', 'Dodgers', 'la',
                 'Chicago',     'Cubs',    'chc',
-                'October 20, 2017', 'Wrigley Field')
+                'Wrigley Field', 'October 20, 2017')
     write_canvas(get_scorecard(game), 'output')
