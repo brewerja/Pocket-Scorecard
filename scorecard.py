@@ -76,7 +76,7 @@ def get_diamond():
     return d
 
 
-def get_batter_panel():
+def get_batter_panel(team_nick):
     c = canvas.canvas()
 
     # Outer border
@@ -108,6 +108,10 @@ def get_batter_panel():
                    height / 2 - j * b - 0.60,
                    '%d' % (j + 1 + 9 * i),
                    [text.halign.boxleft, text.valign.top, text.size.tiny])
+
+    c.text(width / 2 - offset, height / 2 - 9 * b - offset,
+           team_nick, [text.halign.boxright, text.valign.top,
+                       text.size.scriptsize])
 
     return c
 
@@ -239,9 +243,9 @@ def get_scorecard(game):
     pp = get_pitcher_panel(roster, game.home_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 2)])
 
-    bp = get_batter_panel()
-    base.insert(bp)
-    base.insert(bp, [trafo.rotate(180), trafo.translate(width, height)])
+    base.insert(get_batter_panel(game.away_nick))
+    base.insert(get_batter_panel(game.home_nick),
+                [trafo.rotate(180), trafo.translate(width, height)])
 
     base.insert(get_front_panel(game), [trafo.translate(0, height * 0.5)])
     base.insert(get_back_panel(game), [trafo.translate(0, height * 0.75)])
