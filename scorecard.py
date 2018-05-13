@@ -198,9 +198,9 @@ def get_linescore(game):
     c.stroke(path.rect(x, y, 21.5 * w, b))
     c.stroke(path.line(x, y + b / 2, x + 21.5 * w, y + b / 2))
     c.text(x + 2, y + 3 * b / 4., game.away_nick,
-           [text.halign.left, text.valign.middle])
+           [text.halign.left, text.valign.middle, text.size.footnotesize])
     c.text(x + 2, y + b / 4., game.home_nick,
-           [text.halign.left, text.valign.middle])
+           [text.halign.left, text.valign.middle, text.size.footnotesize])
 
     x += 4 * w
     for i in range(13):
@@ -257,7 +257,7 @@ def write_canvas(canvas, filename):
 
 
 if __name__ == '__main__':
-    game = Game('Los Angeles', 'Dodgers', 'la',
-                'Chicago',     'Cubs',    'chc',
-                'Wrigley Field', 'October 20, 2017')
+    game = Game('Washington',  'Nationals',    'was',
+                'Arizona',     'Diamondbacks', 'ari',
+                'Chase Field', 'May 12, 2018')
     write_canvas(get_scorecard(game), 'output')
