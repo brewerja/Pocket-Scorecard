@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from urllib import request
 
 BASE_URL = 'http://mlb.com/team/roster_active.jsp'
-BULLPEN_URL = 'http://www.baseballpress.com/bullpenusage'
+BULLPEN_URL = 'http://www.baseballpress.com/bullpen-usage'
 
 
 def get(team):
@@ -58,7 +58,7 @@ def parse_num(num):
 def get_bullpen_ids():
     f = request.urlopen(BULLPEN_URL)
     soup = BeautifulSoup(f.read(), 'html.parser')
-    div = soup.findAll('div', {'class': 'league'})
+    div = soup.findAll('div', {'class': 'bullpen-usage'})
     bullpen_ids = set()
     names = []
     for d in div:
