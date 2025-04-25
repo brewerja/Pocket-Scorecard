@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from collections import namedtuple
-from pyx import *
+from pyx import text, path, canvas, unit, style, trafo, document
 
 import mlbrosters
 
@@ -42,8 +42,8 @@ def get_pitcher_panel(roster, team_nickname):
                col, [text.halign.center, text.size.footnotesize])
 
     # Roster of pitchers
-    c.text(6 * b + 2, 7 * b / 2, roster,
-           [text.size.scriptsize, text.parbox(width / 2.)])
+    #c.text(6 * b + 2, 7 * b / 2, roster,
+           #[text.size.scriptsize, text.parbox(width / 2.)])
 
     # Insert starting pitcher '1'
     c.text(2.25 * b + 9 / 16. * b,
@@ -119,10 +119,10 @@ def get_batter_panel(team_nick):
 def get_back_panel(game):
     c = canvas.canvas()
     y = height / 4 - 20
-    c.text(1 * width / 6, y, get_roster(game.away_code),
-           [text.parbox(width / 2.), text.size.scriptsize])
-    c.text(2 * width / 6, y, get_roster(game.home_code),
-           [text.parbox(width / 2.), text.size.scriptsize])
+    #c.text(1 * width / 6, y, get_roster(game.away_code),
+           #[text.parbox(width / 2.), text.size.scriptsize])
+    #c.text(2 * width / 6, y, get_roster(game.home_code),
+           #[text.parbox(width / 2.), text.size.scriptsize])
     return c
 
 
@@ -235,11 +235,12 @@ def get_linescore(game):
 def get_scorecard(game):
     base = canvas.canvas()
 
-    roster = get_roster(game.away_code, False)
+    #roster = get_roster(game.away_code, False)
+    roster = None
     pp = get_pitcher_panel(roster, game.away_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 4)])
 
-    roster = get_roster(game.home_code, False)
+    #roster = get_roster(game.home_code, False)
     pp = get_pitcher_panel(roster, game.home_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 2)])
 
@@ -261,7 +262,7 @@ def write_canvas(canvas, filename):
 
 
 if __name__ == '__main__':
-    game = Game('Washington',  'Nationals',    'was',
-                'Arizona',     'Diamondbacks', 'ari',
-                'Chase Field', 'May 12, 2018')
+    game = Game('Washington',  'Nationals',  'nationals',
+                'Baltimore',   'Orioles',    'orioles',
+                'Nationals Park', 'April 24, 2025')
     write_canvas(get_scorecard(game), 'output')

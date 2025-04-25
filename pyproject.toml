@@ -1,0 +1,15 @@
+[project]
+name = "pocket-scorecard"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "pyx>=0.16",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.7",
+]
