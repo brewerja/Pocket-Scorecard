@@ -148,7 +148,7 @@ def get_batter_panel(team_nick):
 
 def get_back_panel(game):
     c = canvas.canvas()
-    y = height / 4 - 20
+    # y = height / 4 - 20
     # c.text(1 * width / 6, y, get_roster(game.away_code),
     # [text.parbox(width / 2.), text.size.scriptsize])
     # c.text(2 * width / 6, y, get_roster(game.home_code),
