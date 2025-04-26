@@ -1,50 +1,83 @@
-from bs4 import BeautifulSoup
+from dataclasses import dataclass
 from urllib import request
+from bs4 import BeautifulSoup, Tag, ResultSet, PageElement, NavigableString
+from typing import cast, Optional
 
-BASE_URL = "http://mlb.com/team/roster_active.jsp"
+# NEED TO UPDATE BULLPEN_URL
 BULLPEN_URL = "http://www.baseballpress.com/bullpen-usage"
+# https://www.insidethepen.com/bullpen-usage.html
+# https://www.fangraphs.com/roster-resource/depth-charts/blue-jays
 
 
-def get(team):
+@dataclass
+class Player:
+    number: int
+    name: str
+    bats: str
+    throws: str
+    mlb_id: str
+
+
+class Roster:
+    def __init__(self):
+        self.pitchers = []
+        self.position_players = []
+
+
+def get_roster(team: str) -> Roster:
     """Return the players and their numbers for a given MLB roster.
 
-    team: string of MLB team (i.e. 'nyy' or 'chc' or 'was')
+    team: string of MLB team (i.e. 'yankees' or 'cubs' or 'nationals')
 
-    Returns a tuple of two lists (pitchers, position_players). Each list
-    contains tuples of a player's number and his name (i.e. (u'34', u'Bryce
-    Harper')."""
+    Returns a Roster object with two lists of players: pitchers and position players.
+    """
 
-    f = request.urlopen("%s?c_id=%s" % (BASE_URL, team))
+    f = request.urlopen(f"https://www.mlb.com/{team}/roster")
     soup = BeautifulSoup(f.read(), "html.parser")
 
-    bodies = soup.findAll("table", {"class": "data roster_table"})
-
     # There should be 4 tbody sets. The first is pitchers.
-    pitchers = build_players(bodies[0], False)
-    position_players = build_players(bodies[1:])
+    bodies = cast(list[Tag], soup.find_all("table", {"class": "roster__table"}))
+    roster = Roster()
+    roster.pitchers = build_players(bodies[0:1])
+    roster.position_players = build_players(bodies[1:])
+    return roster
 
-    return pitchers, position_players
 
-
-def build_players(bodies, posplayers=True):
-    rows = BeautifulSoup(str(bodies), "html.parser").findAll("tr")
+def build_players(bodies: list[Tag], posplayers: bool = True) -> list[Player]:
+    rows = cast(list[Tag], BeautifulSoup(str(bodies), "html.parser").find_all("tr"))
 
     players = []
     for row in rows[1:]:
         if row.td:
-            n = row.td.string
-            if n == "—":
-                n = "66"
-            link = row.find("td", class_="dg-name_display_first_last").a
-            name = link.string
-            mlb_id = link["href"].split("/")[-2]
-            bats, throws = row.find("td", class_="dg-bats_throws").string.split("/")
-            players.append((n, name, bats if posplayers else throws, mlb_id))
+            info_td = row.find("td", class_="info")
+            if not info_td or not isinstance(info_td, Tag):
+                continue
 
-    return sorted(players, key=lambda p: parse_num(p[0]))
+            jersey_span = info_td.find("span", class_="jersey")
+            if not jersey_span or not isinstance(jersey_span, Tag):
+                continue
+            n = parse_num(jersey_span.get_text(strip=True))
+
+            link = info_td.find("a")
+            if not link or not isinstance(link, Tag):
+                continue
+            name = link.get_text(strip=True)  # Use get_text() instead of .string
+            href = link.get("href")
+            if not href or not isinstance(href, str):
+                continue
+            mlb_id = href.split("/")[-1]
+
+            bat_throw_td = row.find("td", class_="bat-throw")
+            if not bat_throw_td or not isinstance(bat_throw_td, Tag):
+                continue
+
+            bats, throws = bat_throw_td.get_text(strip=True).split("/")
+            players.append(Player(n, name, bats, throws, mlb_id))
+
+    return sorted(players, key=lambda p: p.number)
 
 
-def parse_num(num):
+def parse_num(num: str) -> int:
     if num:
         try:
             return int(num)
@@ -57,13 +90,13 @@ def parse_num(num):
 def get_bullpen_ids():
     f = request.urlopen(BULLPEN_URL)
     soup = BeautifulSoup(f.read(), "html.parser")
-    div = soup.findAll("div", {"class": "bullpen-usage"})
+    div = soup.find_all("div", {"class": "bullpen-usage"})
     bullpen_ids = set()
     names = []
     for d in div:
-        rows = d.table.findAll("tr")
+        rows = d.table.find_all("tr")
         for r in rows:
-            cols = r.findAll("td")
+            cols = r.find_all("td")
             for c in cols:
                 if c.a:
                     bullpen_ids.add(c.a["data-mlb"])
@@ -79,14 +112,14 @@ def separate_starters_and_bullpen(pitchers):
 
 
 if __name__ == "__main__":
-    for code in ["ari"]:
-        pitchers, position_players = get(code)
-        starters, bullpen = separate_starters_and_bullpen(pitchers)
-        for p in starters:
+    for code in ["nationals"]:
+        roster = get_roster(code)
+        # starters, bullpen = separate_starters_and_bullpen(pitchers)
+        for p in roster.pitchers:
             print(p)
         print("\n")
-        for p in bullpen:
-            print(p)
+        # for p in bullpen:
+        # print(p)
         print("\n")
-        for p in position_players:
+        for p in roster.position_players:
             print(p)

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 from collections import namedtuple
-from pyx import text, path, canvas, unit, style, trafo, document
+
+from pyx import canvas, document, path, style, text, trafo, unit  # type: ignore
 
 import mlbrosters
 
@@ -15,8 +16,9 @@ unit.set(defaultunit="pt")
 
 # Text Setup
 text.set(text.LatexRunner)
-text.preamble(r"\usepackage[sfdefault,condensed]{cabin}")
+text.preamble(r"\usepackage[utf8]{inputenc}")
 text.preamble(r"\usepackage[T1]{fontenc}")
+text.preamble(r"\usepackage[sfdefault,condensed]{cabin}")
 
 # Line and Page Setup
 lw = unit.topt(style.linewidth.normal.width)
@@ -148,23 +150,32 @@ def get_batter_panel(team_nick):
 
 def get_back_panel(game):
     c = canvas.canvas()
-    # y = height / 4 - 20
-    # c.text(1 * width / 6, y, get_roster(game.away_code),
-    # [text.parbox(width / 2.), text.size.scriptsize])
-    # c.text(2 * width / 6, y, get_roster(game.home_code),
-    # [text.parbox(width / 2.), text.size.scriptsize])
+    y = height / 4 - 20
+    c.text(
+        1 * width / 6,
+        y,
+        get_roster(game.away_code),
+        [text.parbox(width / 2.0), text.size.scriptsize],
+    )
+    c.text(
+        2 * width / 6,
+        y,
+        get_roster(game.home_code),
+        [text.parbox(width / 2.0), text.size.scriptsize],
+    )
     return c
 
 
 def get_roster(team_code, posplayers=True):
-    pitchers, pplayers = mlbrosters.get(team_code)
+    pitchers, pplayers = mlbrosters.get_roster(team_code)
     if posplayers:
         return roster_list(pplayers)
-    starters, bullpen = mlbrosters.separate_starters_and_bullpen(pitchers)
-    return roster_list(starters) + r"\\ \\" + roster_list(bullpen)
+    # starters, bullpen = mlbrosters.separate_starters_and_bullpen(pitchers)
+    # return roster_list(starters) + r"\\ \\" + roster_list(bullpen)
+    return roster_list(pitchers)
 
 
-def roster_list(players):
+def roster_list(players: list[tuple[str, str, str, str]]) -> str:
     return r"\noindent" + r"\\".join(
         map(lambda p: "%s %s %s" % (p[0], p[1], p[2]), players)
     )
@@ -281,12 +292,11 @@ def get_linescore(game):
 def get_scorecard(game):
     base = canvas.canvas()
 
-    # roster = get_roster(game.away_code, False)
-    roster = None
+    roster = get_roster(game.away_code, False)
     pp = get_pitcher_panel(roster, game.away_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 4)])
 
-    # roster = get_roster(game.home_code, False)
+    roster = get_roster(game.home_code, False)
     pp = get_pitcher_panel(roster, game.home_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 2)])
 
