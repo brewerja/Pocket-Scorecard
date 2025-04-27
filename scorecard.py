@@ -15,7 +15,7 @@ Game = namedtuple(
 unit.set(defaultunit="pt")
 
 # Text Setup
-text.set(text.LatexRunner)
+text.set(text.LatexRunner, texenc="utf8")
 text.preamble(r"\usepackage[utf8]{inputenc}")
 text.preamble(r"\usepackage[T1]{fontenc}")
 text.preamble(r"\usepackage[sfdefault,condensed]{cabin}")
@@ -51,8 +51,9 @@ def get_pitcher_panel(roster, team_nickname):
         )
 
     # Roster of pitchers
-    # c.text(6 * b + 2, 7 * b / 2, roster,
-    # [text.size.scriptsize, text.parbox(width / 2.)])
+    c.text(
+        6 * b + 2, 7 * b / 2, roster, [text.size.scriptsize, text.parbox(width / 2.0)]
+    )
 
     # Insert starting pitcher '1'
     c.text(
@@ -167,12 +168,12 @@ def get_back_panel(game):
 
 
 def get_roster(team_code, posplayers=True):
-    pitchers, pplayers = mlbrosters.get_roster(team_code)
+    roster = mlbrosters.get_roster(team_code)
     if posplayers:
-        return roster_list(pplayers)
+        return roster.get_position_players()
     # starters, bullpen = mlbrosters.separate_starters_and_bullpen(pitchers)
     # return roster_list(starters) + r"\\ \\" + roster_list(bullpen)
-    return roster_list(pitchers)
+    return roster.get_pitchers()
 
 
 def roster_list(players: list[tuple[str, str, str, str]]) -> str:

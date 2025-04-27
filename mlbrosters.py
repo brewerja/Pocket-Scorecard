@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from urllib import request
-from bs4 import BeautifulSoup, Tag, ResultSet, PageElement, NavigableString
-from typing import cast, Optional
+from bs4 import BeautifulSoup, Tag
+from typing import cast
 
 # NEED TO UPDATE BULLPEN_URL
 BULLPEN_URL = "http://www.baseballpress.com/bullpen-usage"
@@ -22,6 +22,21 @@ class Roster:
     def __init__(self):
         self.pitchers = []
         self.position_players = []
+
+    def get_pitchers(self) -> str:
+        return self._format(self.pitchers)
+
+    def get_position_players(self) -> str:
+        return self._format(self.position_players, throws=True)
+
+    def _format(self, players: list[Player], throws: bool = False) -> str:
+        return r"\noindent" + r"\\".join(
+            map(
+                lambda p: "%s %s %s"
+                % (p.number, p.name, p.throws if throws else p.bats),
+                players,
+            )
+        )
 
 
 def get_roster(team: str) -> Roster:
