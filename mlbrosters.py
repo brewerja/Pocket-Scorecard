@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import cast
@@ -5,10 +6,7 @@ from urllib import request
 
 from bs4 import BeautifulSoup, Tag
 
-# NEED TO UPDATE BULLPEN_URL
-BULLPEN_URL = "http://www.baseballpress.com/bullpen-usage"
-# https://www.insidethepen.com/bullpen-usage.html
-# https://www.fangraphs.com/roster-resource/depth-charts/blue-jays
+BULLPEN_URL = "https://www.insidethepen.com/bullpen-usage.html"
 
 
 @dataclass
@@ -24,8 +22,12 @@ class Roster:
     def __init__(self):
         self.pitchers = []
         self.position_players = []
+        self.starters = []
+        self.bullpen = []
 
     def get_pitchers(self) -> str:
+        if self.starters and self.bullpen:
+            return self._format(self.starters) + r"\\ \\" + self._format(self.bullpen)
         return self._format(self.pitchers)
 
     def get_position_players(self) -> str:
@@ -58,6 +60,7 @@ def get_roster(team: str) -> Roster:
     roster = Roster()
     roster.pitchers = build_players(bodies[0:1])
     roster.position_players = build_players(bodies[1:])
+    separate_starters_and_bullpen(roster)
     return roster
 
 
@@ -79,7 +82,7 @@ def build_players(bodies: list[Tag], posplayers: bool = True) -> list[Player]:
             link = info_td.find("a")
             if not link or not isinstance(link, Tag):
                 continue
-            name = link.get_text(strip=True)  # Use get_text() instead of .string
+            name = link.get_text(strip=True)
             href = link.get("href")
             if not href or not isinstance(href, str):
                 continue
@@ -105,39 +108,34 @@ def parse_num(num: str) -> int:
     return 100
 
 
-def get_bullpen_ids():
+def separate_starters_and_bullpen(roster: Roster) -> None:
+    bullpen_ids = get_bullpen_ids()
+    roster.bullpen = [p for p in roster.pitchers if p.mlb_id in bullpen_ids]
+    roster.starters = [p for p in roster.pitchers if p.mlb_id not in bullpen_ids]
+
+
+def get_bullpen_ids() -> set[str]:
     f = request.urlopen(BULLPEN_URL)
     soup = BeautifulSoup(f.read(), "html.parser")
-    div = soup.find_all("div", {"class": "bullpen-usage"})
+    links = cast(list[Tag], soup.find_all("a", class_="usage-link"))
+
     bullpen_ids = set()
-    names = []
-    for d in div:
-        rows = d.table.find_all("tr")
-        for r in rows:
-            cols = r.find_all("td")
-            for c in cols:
-                if c.a:
-                    bullpen_ids.add(c.a["data-mlb"])
-                    names.append(c.a.contents[0])
+    for link in links:
+        href = str(link.get("href", ""))
+        match = re.search(r"-(\d+)\.html$", href)
+        if match:
+            bullpen_ids.add(match.group(1))
     return bullpen_ids
-
-
-def separate_starters_and_bullpen(pitchers):
-    bullpen_ids = get_bullpen_ids()
-    bullpen = [p for p in pitchers if p[3] in bullpen_ids]
-    starters = [p for p in pitchers if p[3] not in bullpen_ids]
-    return starters, bullpen
 
 
 if __name__ == "__main__":
     for code in ["nationals"]:
         roster = get_roster(code)
-        # starters, bullpen = separate_starters_and_bullpen(pitchers)
-        for p in roster.pitchers:
+        for p in roster.starters:
             print(p)
         print("\n")
-        # for p in bullpen:
-        # print(p)
+        for p in roster.bullpen:
+            print(p)
         print("\n")
         for p in roster.position_players:
             print(p)
