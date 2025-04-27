@@ -149,7 +149,7 @@ def get_batter_panel(team_nick: str) -> canvas:
     return c
 
 
-def get_back_panel(game: Game):
+def get_back_panel(game: Game) -> canvas:
     c = canvas.canvas()
     y = height / 4 - 20
     c.text(

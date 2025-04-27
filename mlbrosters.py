@@ -19,11 +19,11 @@ class Player:
 
 
 class Roster:
-    def __init__(self):
-        self.pitchers = []
-        self.position_players = []
-        self.starters = []
-        self.bullpen = []
+    def __init__(self) -> None:
+        self.pitchers: list[Player] = []
+        self.position_players: list[Player] = []
+        self.starters: list[Player] = []
+        self.bullpen: list[Player] = []
 
     def get_pitchers(self) -> str:
         if self.starters and self.bullpen:
