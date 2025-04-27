@@ -1,7 +1,9 @@
 from dataclasses import dataclass
-from urllib import request
-from bs4 import BeautifulSoup, Tag
+from functools import lru_cache
 from typing import cast
+from urllib import request
+
+from bs4 import BeautifulSoup, Tag
 
 # NEED TO UPDATE BULLPEN_URL
 BULLPEN_URL = "http://www.baseballpress.com/bullpen-usage"
@@ -39,6 +41,7 @@ class Roster:
         )
 
 
+@lru_cache(maxsize=2)
 def get_roster(team: str) -> Roster:
     """Return the players and their numbers for a given MLB roster.
 

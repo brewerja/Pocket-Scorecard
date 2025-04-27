@@ -31,7 +31,7 @@ height = unit.topt(11.0 * unit.inch)
 b = height / 4.0 / 5
 
 
-def get_pitcher_panel(roster, team_nickname):
+def get_pitcher_panel(roster: str, team_nickname: str) -> canvas:
     c = canvas.canvas()
 
     # Column headings
@@ -81,14 +81,14 @@ def get_pitcher_panel(roster, team_nickname):
     return c
 
 
-def get_diamond():
+def get_diamond() -> canvas:
     dashed = style.linestyle(style.linecap.butt, style.dash([4, 8], 0.1))
-    d = canvas.canvas()
-    d.stroke(path.rect(0, 0, b / 3, b / 3), [style.linewidth.THIN, dashed])
-    return d
+    c = canvas.canvas()
+    c.stroke(path.rect(0, 0, b / 3, b / 3), [style.linewidth.THIN, dashed])
+    return c
 
 
-def get_batter_panel(team_nick):
+def get_batter_panel(team_nick: str) -> canvas:
     c = canvas.canvas()
 
     # Outer border
@@ -149,7 +149,7 @@ def get_batter_panel(team_nick):
     return c
 
 
-def get_back_panel(game):
+def get_back_panel(game: Game):
     c = canvas.canvas()
     y = height / 4 - 20
     c.text(
@@ -167,7 +167,7 @@ def get_back_panel(game):
     return c
 
 
-def get_roster(team_code, posplayers=True):
+def get_roster(team_code: str, posplayers: bool = True) -> str:
     roster = mlbrosters.get_roster(team_code)
     if posplayers:
         return roster.get_position_players()
@@ -176,13 +176,7 @@ def get_roster(team_code, posplayers=True):
     return roster.get_pitchers()
 
 
-def roster_list(players: list[tuple[str, str, str, str]]) -> str:
-    return r"\noindent" + r"\\".join(
-        map(lambda p: "%s %s %s" % (p[0], p[1], p[2]), players)
-    )
-
-
-def get_front_panel(game):
+def get_front_panel(game: Game) -> canvas:
     c = canvas.canvas()
 
     # Panel border
@@ -244,7 +238,7 @@ def get_front_panel(game):
     return c
 
 
-def get_linescore(game):
+def get_linescore(game: Game) -> canvas:
     c = canvas.canvas()
 
     w = b / 4
@@ -290,7 +284,7 @@ def get_linescore(game):
     return c
 
 
-def get_scorecard(game):
+def get_scorecard(game: Game) -> canvas:
     base = canvas.canvas()
 
     roster = get_roster(game.away_code, False)
@@ -313,7 +307,7 @@ def get_scorecard(game):
     return base
 
 
-def write_canvas(canvas, filename):
+def write_canvas(canvas: canvas, filename: str) -> None:
     page = document.page(
         canvas, "scorecard", document.paperformat.Letter, centered=0, margin=0
     )
@@ -326,10 +320,10 @@ if __name__ == "__main__":
         "Washington",
         "Nationals",
         "nationals",
-        "Baltimore",
-        "Orioles",
-        "orioles",
+        "New York",
+        "Mets",
+        "mets",
         "Nationals Park",
-        "April 24, 2025",
+        "April 27, 2025",
     )
     write_canvas(get_scorecard(game), "output")
