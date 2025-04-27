@@ -155,25 +155,24 @@ def get_back_panel(game: Game):
     c.text(
         1 * width / 6,
         y,
-        get_roster(game.away_code),
+        get_position_players(game.away_code),
         [text.parbox(width / 2.0), text.size.scriptsize],
     )
     c.text(
         2 * width / 6,
         y,
-        get_roster(game.home_code),
+        get_position_players(game.home_code),
         [text.parbox(width / 2.0), text.size.scriptsize],
     )
     return c
 
 
-def get_roster(team_code: str, posplayers: bool = True) -> str:
-    roster = mlbrosters.get_roster(team_code)
-    if posplayers:
-        return roster.get_position_players()
-    # starters, bullpen = mlbrosters.separate_starters_and_bullpen(pitchers)
-    # return roster_list(starters) + r"\\ \\" + roster_list(bullpen)
-    return roster.get_pitchers()
+def get_position_players(team_code: str) -> str:
+    return mlbrosters.get_roster(team_code).get_position_players()
+
+
+def get_pitchers(team_code: str) -> str:
+    return mlbrosters.get_roster(team_code).get_pitchers()
 
 
 def get_front_panel(game: Game) -> canvas:
@@ -287,11 +286,11 @@ def get_linescore(game: Game) -> canvas:
 def get_scorecard(game: Game) -> canvas:
     base = canvas.canvas()
 
-    roster = get_roster(game.away_code, False)
+    roster = get_pitchers(game.away_code)
     pp = get_pitcher_panel(roster, game.away_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 4)])
 
-    roster = get_roster(game.home_code, False)
+    roster = get_pitchers(game.home_code)
     pp = get_pitcher_panel(roster, game.home_nick)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 2)])
 
