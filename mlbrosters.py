@@ -64,7 +64,7 @@ def get_roster(team: str) -> Roster:
     return roster
 
 
-def build_players(bodies: list[Tag], posplayers: bool = True) -> list[Player]:
+def build_players(bodies: list[Tag]) -> list[Player]:
     rows = cast(list[Tag], BeautifulSoup(str(bodies), "html.parser").find_all("tr"))
 
     players = []

@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 
-from collections import namedtuple
+from typing import NamedTuple
 
 from pyx import canvas, document, path, style, text, trafo, unit  # type: ignore
 
 import mlbrosters
 
-Game = namedtuple(
-    "Game",
-    ("away_city, away_nick, away_code, home_city, home_nick, home_code, venue, date"),
-)
+
+class Game(NamedTuple):
+    away_city: str
+    away_nick: str
+    home_city: str
+    home_nick: str
+    venue: str
+    date: str
+    away_code: str | None = None
+    home_code: str | None = None
+
 
 # Set default units to pts
 unit.set(defaultunit="pt")
@@ -31,7 +38,7 @@ height = unit.topt(11.0 * unit.inch)
 b = height / 4.0 / 5
 
 
-def get_pitcher_panel(roster: str, team_nickname: str) -> canvas:
+def get_pitcher_panel(team_nickname: str, roster: str | None) -> canvas:
     c = canvas.canvas()
 
     # Column headings
@@ -51,9 +58,13 @@ def get_pitcher_panel(roster: str, team_nickname: str) -> canvas:
         )
 
     # Roster of pitchers
-    c.text(
-        6 * b + 2, 7 * b / 2, roster, [text.size.scriptsize, text.parbox(width / 2.0)]
-    )
+    if roster:
+        c.text(
+            6 * b + 2,
+            7 * b / 2,
+            roster,
+            [text.size.scriptsize, text.parbox(width / 2.0)],
+        )
 
     # Insert starting pitcher '1'
     c.text(
@@ -149,21 +160,23 @@ def get_batter_panel(team_nick: str) -> canvas:
     return c
 
 
-def get_back_panel(game: Game) -> canvas:
+def get_back_panel(roster_away: str | None, roster_home: str | None) -> canvas:
     c = canvas.canvas()
     y = height / 4 - 20
-    c.text(
-        1 * width / 6,
-        y,
-        get_position_players(game.away_code),
-        [text.parbox(width / 2.0), text.size.scriptsize],
-    )
-    c.text(
-        2 * width / 6,
-        y,
-        get_position_players(game.home_code),
-        [text.parbox(width / 2.0), text.size.scriptsize],
-    )
+    if roster_away:
+        c.text(
+            1 * width / 6,
+            y,
+            roster_away,
+            [text.parbox(width / 2.0), text.size.scriptsize],
+        )
+    if roster_home:
+        c.text(
+            2 * width / 6,
+            y,
+            roster_home,
+            [text.parbox(width / 2.0), text.size.scriptsize],
+        )
     return c
 
 
@@ -286,12 +299,12 @@ def get_linescore(game: Game) -> canvas:
 def get_scorecard(game: Game) -> canvas:
     base = canvas.canvas()
 
-    roster = get_pitchers(game.away_code)
-    pp = get_pitcher_panel(roster, game.away_nick)
+    roster_away = get_pitchers(game.away_code) if game.away_code else None
+    pp = get_pitcher_panel(game.away_nick, roster_away)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 4)])
 
-    roster = get_pitchers(game.home_code)
-    pp = get_pitcher_panel(roster, game.home_nick)
+    roster_home = get_pitchers(game.home_code) if game.home_code else None
+    pp = get_pitcher_panel(game.home_nick, roster_home)
     base.insert(pp, [trafo.rotate(180), trafo.translate(width, height / 2)])
 
     base.insert(get_batter_panel(game.away_nick))
@@ -301,7 +314,13 @@ def get_scorecard(game: Game) -> canvas:
     )
 
     base.insert(get_front_panel(game), [trafo.translate(0, height * 0.5)])
-    base.insert(get_back_panel(game), [trafo.translate(0, height * 0.75)])
+
+    roster_away = get_position_players(game.away_code) if game.away_code else None
+    roster_home = get_position_players(game.home_code) if game.home_code else None
+    base.insert(
+        get_back_panel(roster_away, roster_home),
+        [trafo.translate(0, height * 0.75)],
+    )
 
     return base
 
@@ -316,13 +335,13 @@ def write_canvas(canvas: canvas, filename: str) -> None:
 
 if __name__ == "__main__":
     game = Game(
-        "Washington",
-        "Nationals",
-        "nationals",
-        "New York",
-        "Mets",
-        "mets",
-        "Nationals Park",
-        "April 27, 2025",
+        away_city="Washington",
+        away_nick="Nationals",
+        home_city="New York",
+        home_nick="Mets",
+        venue="Nationals Park",
+        date="April 27, 2025",
+        away_code="nationals",
+        home_code="mets",
     )
     write_canvas(get_scorecard(game), "output")
