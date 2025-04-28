@@ -8,12 +8,12 @@ import mlbrosters
 
 
 class Game(NamedTuple):
-    away_city: str
-    away_nick: str
-    home_city: str
-    home_nick: str
-    venue: str
-    date: str
+    away_city: str | None = None
+    away_nick: str | None = None
+    home_city: str | None = None
+    home_nick: str | None = None
+    venue: str | None = None
+    date: str | None = None
     away_code: str | None = None
     home_code: str | None = None
 
@@ -38,14 +38,14 @@ height = unit.topt(11.0 * unit.inch)
 b = height / 4.0 / 5
 
 
-def get_pitcher_panel(team_nickname: str, roster: str | None) -> canvas:
+def get_pitcher_panel(team_nick: str | None, roster: str | None) -> canvas:
     c = canvas.canvas()
 
     # Column headings
     c.text(
         2.25 * b / 2,
         3.5 * b + 2 * lw,
-        "%s PITCHERS" % team_nickname.upper(),
+        " ".join(filter(None, (team_nick, "PITCHERS"))).upper(),
         [text.halign.center, text.size.footnotesize],
     )
     columns = ["L/R", "In", "Out", "IP", "H", "R", "ER", "BB", "K", "HR"]
@@ -99,7 +99,7 @@ def get_diamond() -> canvas:
     return c
 
 
-def get_batter_panel(team_nick: str) -> canvas:
+def get_batter_panel(team_nick: str | None) -> canvas:
     c = canvas.canvas()
 
     # Outer border
@@ -150,12 +150,13 @@ def get_batter_panel(team_nick: str) -> canvas:
                 [text.halign.boxleft, text.valign.top, text.size.tiny],
             )
 
-    c.text(
-        width / 2 - offset,
-        height / 2 - 9 * b - offset,
-        team_nick,
-        [text.halign.boxright, text.valign.top, text.size.scriptsize],
-    )
+    if team_nick:
+        c.text(
+            width / 2 - offset,
+            height / 2 - 9 * b - offset,
+            team_nick,
+            [text.halign.boxright, text.valign.top, text.size.scriptsize],
+        )
 
     return c
 
@@ -200,36 +201,42 @@ def get_front_panel(game: Game) -> canvas:
     x = width / 4.0 - ll - vsw / 2.0
     y = 4 * b
     c.stroke(path.line(x, y, x + ll, y))
-    c.text(
-        (2 * x + ll) / 2.0,
-        y + 2,
-        "%s %s" % (game.away_city, game.away_nick),
-        [text.halign.center],
-    )
+    if game.away_city or game.away_nick:
+        away_name = " ".join(filter(None, (game.away_city, game.away_nick)))
+        c.text(
+            (2 * x + ll) / 2.0,
+            y + 2,
+            away_name,
+            [text.halign.center],
+        )
 
     c.text(width / 4.0, y, "vs.", [text.halign.center])
 
     x = x + ll + vsw
     c.stroke(path.line(x, y, x + ll, y))
-    c.text(
-        (2 * x + ll) / 2.0,
-        y + 2,
-        "%s %s" % (game.home_city, game.home_nick),
-        [text.halign.center],
-    )
+    if game.home_city or game.home_nick:
+        home_name = " ".join(filter(None, (game.home_city, game.home_nick)))
+        c.text(
+            (2 * x + ll) / 2.0,
+            y + 2,
+            home_name,
+            [text.halign.center],
+        )
 
     # At (@)
     x = width / 4.0 - ll / 2.0
     y = 3.5 * b
     c.stroke(path.line(x, y, x + ll, y))
     c.text(x - 4, y, "@", [text.halign.right])
-    c.text((2 * x + ll) / 2.0, y + 2, game.venue, [text.halign.center])
+    if game.venue:
+        c.text((2 * x + ll) / 2.0, y + 2, game.venue, [text.halign.center])
 
     # On
     y = 3.0 * b
     c.stroke(path.line(x, y, x + ll, y))
     c.text(x - 4, y, "on", [text.halign.right])
-    c.text((2 * x + ll) / 2.0, y + 2, game.date, [text.halign.center])
+    if game.date:
+        c.text((2 * x + ll) / 2.0, y + 2, game.date, [text.halign.center])
 
     # Start and Finish
     x = width / 4.0 - b - vsw / 2.0
@@ -335,13 +342,13 @@ def write_canvas(canvas: canvas, filename: str) -> None:
 
 if __name__ == "__main__":
     game = Game(
-        away_city="Washington",
-        away_nick="Nationals",
-        home_city="New York",
-        home_nick="Mets",
+        away_city="New York",
+        away_nick="Mets",
+        home_city="Washington",
+        home_nick="Nationals",
         venue="Nationals Park",
-        date="April 27, 2025",
-        away_code="nationals",
-        home_code="mets",
+        date="April 28, 2025",
+        away_code="mets",
+        home_code="nationals",
     )
     write_canvas(get_scorecard(game), "output")
