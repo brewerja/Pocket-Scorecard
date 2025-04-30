@@ -31,13 +31,12 @@ class Roster:
         return self._format(self.pitchers)
 
     def get_position_players(self) -> str:
-        return self._format(self.position_players, throws=True)
+        return self._format(self.position_players, bats=True)
 
-    def _format(self, players: list[Player], throws: bool = False) -> str:
+    def _format(self, players: list[Player], bats: bool = False) -> str:
         return r"\noindent" + r"\\".join(
             map(
-                lambda p: "%s %s %s"
-                % (p.number, p.name, p.throws if throws else p.bats),
+                lambda p: "%s %s %s" % (p.number, p.name, p.bats if bats else p.throws),
                 players,
             )
         )
